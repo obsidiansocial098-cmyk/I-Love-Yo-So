@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Us</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  background: linear-gradient(180deg, #000000, #1a1a1a);
+  color: white;
+  overflow-x: hidden;
+}
+
+/* Sections */
+section {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Images */
+.images {
+  display: flex;
+  gap: 20px;
+}
+
+img {
+  width: 150px;
+  border-radius: 20px;
+  filter: blur(12px);
+  transition: 1.5s ease;
+}
+
+.clear {
+  filter: blur(0);
+  transform: scale(1.05);
+}
+
+/* Text */
+h1, p {
+  margin: 15px 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 1s;
+}
+
+.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Button */
+button {
+  padding: 10px 20px;
+  border: none;
+  background: white;
+  color: black;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+/* Floating hearts */
+.hearts {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.heart {
+  position: absolute;
+  bottom: -20px;
+  font-size: 20px;
+  animation: floatUp linear forwards;
+}
+
+@keyframes floatUp {
+  to {
+    transform: translateY(-110vh);
+    opacity: 0;
+  }
+}
+
+/* Burst hearts */
+.burst-heart {
+  position: fixed;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: burst 0.8s ease-out forwards;
+}
+
+@keyframes burst {
+  to {
+    transform: translate(var(--x), var(--y)) scale(1.5);
+    opacity: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Hearts container -->
+<div class="hearts"></div>
+
+<!-- Music -->
+<audio id="bgMusic" src="music.mp3"></audio>
+
+<!-- Section 1 -->
+<section>
+  <div class="images">
+    <img src="photo1.jpg" id="img1">
+    <img src="photo2.jpg" id="img2">
+  </div>
+  <h1 id="text1">We didn’t know it then…</h1>
+  <button onclick="start()">See more</button>
+</section>
+
+<!-- Section 2 -->
+<section>
+  <h1 id="text2"></h1>
+</section>
+
+<!-- Section 3 -->
+<section>
+  <h1 id="text3"></h1>
+</section>
+
+<!-- Section 4 -->
+<section>
+  <h1 id="text4">Still is.</h1>
+  <button onclick="finalMessage()">Stay</button>
+  <p id="finalText"></p>
+</section>
+
+<script>
+// Typing effect
+function typeText(element, text, speed = 50) {
+  let i = 0;
+  function typing() {
+    if (i < text.length) {
+      element.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(typing, speed);
+    }
+  }
+  typing();
+}
+
+// Floating hearts
+function createHeart() {
+  const heart = document.createElement("div");
+  heart.classList.add("heart");
+  heart.innerHTML = "❤";
+
+  const colors = ["#ff4d6d", "#ff99ac", "#ffccd5"];
+  heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.fontSize = (15 + Math.random() * 25) + "px";
+  heart.style.animationDuration = (4 + Math.random() * 4) + "s";
+
+  document.querySelector(".hearts").appendChild(heart);
+
+  setTimeout(() => heart.remove(), 8000);
+}
+
+// Burst hearts
+function createBurst(x, y) {
+  for (let i = 0; i < 12; i++) {
+    const heart = document.createElement("div");
+    heart.classList.add("burst-heart");
+    heart.innerHTML = "❤";
+
+    const colors = ["#ff4d6d", "#ff99ac", "#ffffff"];
+    heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+    heart.style.left = x + "px";
+    heart.style.top = y + "px";
+
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = 60 + Math.random() * 80;
+
+    heart.style.setProperty("--x", `${Math.cos(angle) * distance}px`);
+    heart.style.setProperty("--y", `${Math.sin(angle) * distance}px`);
+
+    document.body.appendChild(heart);
+
+    setTimeout(() => heart.remove(), 800);
+  }
+}
+
+// Drag hearts
+document.addEventListener("mousemove", (e) => {
+  if (Math.random() < 0.2) createBurst(e.clientX, e.clientY);
+});
+
+// Click burst
+document.addEventListener("click", (e) => {
+  createBurst(e.clientX, e.clientY);
+});
+
+// Touch burst
+document.addEventListener("touchstart", (e) => {
+  const t = e.touches[0];
+  createBurst(t.clientX, t.clientY);
+});
+
+let heartInterval;
+
+// Start
+function start() {
+  document.getElementById("img1").classList.add("clear");
+  document.getElementById("img2").classList.add("clear");
+
+  let music = document.getElementById("bgMusic");
+  music.volume = 0.5;
+  music.play().catch(() => {});
+
+  heartInterval = setInterval(createHeart, 300);
+
+  window.scrollTo({
+    top: window.innerHeight,
+    behavior: "smooth"
+  });
+
+  let t2 = document.getElementById("text2");
+  t2.classList.add("show");
+  if (t2.innerHTML === "")
+    typeText(t2, "But somehow… life had other plans.");
+}
+
+// Scroll
+window.addEventListener("scroll", () => {
+  let pos = window.scrollY;
+
+  if (pos > window.innerHeight * 1.5) {
+    let t3 = document.getElementById("text3");
+    t3.classList.add("show");
+    if (t3.innerHTML === "")
+      typeText(t3, "Out of everyone… it became you.");
+  }
+
+  if (pos > window.innerHeight * 2.5) {
+    document.getElementById("text4").classList.add("show");
+  }
+});
+
+// Final
+function finalMessage() {
+  let text = document.getElementById("finalText");
+  text.classList.add("show");
+  typeText(text, "Me Love You\nMe Always Will Love Youuuuuuuuuuuuuuuuuuuuuuu.");
+
+  clearInterval(heartInterval);
+  heartInterval = setInterval(createHeart, 120);
+
+  createBurst(window.innerWidth / 2, window.innerHeight / 2);
+}
+
+// First text show
+window.onload = () => {
+  document.getElementById("text1").classList.add("show");
+};
+</script>
+
+</body>
+</html>
