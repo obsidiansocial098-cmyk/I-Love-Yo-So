@@ -227,8 +227,12 @@ let heartInterval;
 function start() {
   const music = document.getElementById("bgMusic");
 
-  music.play().catch(() => {
-    console.log("Autoplay blocked");
+  music.volume = 1; // full volume
+  music.currentTime = 0; // restart
+  music.play().then(() => {
+    console.log("Music playing");
+  }).catch((e) => {
+    console.log("Error:", e);
   });
 
   document.getElementById("img1").classList.add("clear");
@@ -239,6 +243,12 @@ function start() {
     behavior: "smooth"
   });
 
+  setTimeout(() => {
+    let t2 = document.getElementById("text2");
+    t2.classList.add("show");
+    typeText(t2, "But somehow… life had other plans.");
+  }, 800);
+}
   setTimeout(() => {
     let t2 = document.getElementById("text2");
     t2.classList.add("show");
